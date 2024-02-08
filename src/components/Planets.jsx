@@ -48,8 +48,14 @@ class Planet {
         map: new THREE.TextureLoader().load(`./assets/${name}.jpeg`),
       })
     );
+  }
+
+  init(scene) {
+    this.angle = Math.random() * Math.PI * 2; // Random initial angle
+    this.orbit.rotation.y = this.angle; // Set the rotation based on the angle
     this.mesh.position.x = this.distance;
     this.orbit.add(this.mesh);
+    scene.add(this.orbit);
   }
 
   update() {
@@ -97,9 +103,9 @@ const Canvas = () => {
     // part 3.1 - add the earth and moon to the solar system
     const earth = new Planet("earth", 2, earthDistance, 0.003, 0.08);
     const earthOrbit = earth.orbit;
-    const earthMesh = earth.mesh;
-    earthOrbit.add(earthMesh);
-    test.scene.add(earthOrbit);
+    // const earthMesh = earth.mesh;
+    // earthOrbit.add(earthMesh);
+    // test.scene.add(earthOrbit);
     // earthOrbit.add(test.camera);
 
     const moonOrbit = new THREE.Group();
@@ -124,6 +130,21 @@ const Canvas = () => {
     const saturn = new Planet("Saturn", 4.5, 100, 0.0003, 0.025);
     const uranus = new Planet("Uranus", 3.5, 120, 0.0002, 0.015);
     const neptune = new Planet("Neptune", 3, 140, 0.0001, 0.02);
+
+    const planetArr = [
+      mercury,
+      venus,
+      earth,
+      mars,
+      jupiter,
+      saturn,
+      uranus,
+      neptune,
+    ];
+
+    planetArr.forEach((planet) => {
+      planet.init(test.scene);
+    });
 
     const plutoOrbit = new THREE.Group();
     //load model of Pluto from "./assets/Pluto_1_2374.glb"
@@ -174,14 +195,6 @@ const Canvas = () => {
     saturnRingsMesh.rotation.x = Math.PI / 2;
     saturn.mesh.add(saturnRingsMesh);
 
-    test.scene.add(mercury.orbit);
-    test.scene.add(venus.orbit);
-    test.scene.add(mars.orbit);
-    test.scene.add(jupiter.orbit);
-    test.scene.add(saturn.orbit);
-    test.scene.add(uranus.orbit);
-    test.scene.add(neptune.orbit);
-
     // part 3.3 - animate earth rotation and moon rotation
 
     // window.addEventListener("mousedown", () => {
@@ -199,15 +212,11 @@ const Canvas = () => {
     // });
 
     const animate = () => {
-      earth.update();
       moonOrbit.rotation.y -= 0.02;
-      mercury.update();
-      venus.update();
-      mars.update();
-      jupiter.update();
-      saturn.update();
-      uranus.update();
-      neptune.update();
+
+      planetArr.forEach((planet) => {
+        planet.update();
+      });
 
       plutoAngle -= 0.0001; // Increment the angle
       plutoOrbit.rotation.y = plutoAngle; // Set the rotation based on the angle
