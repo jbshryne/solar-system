@@ -123,13 +123,13 @@ const Canvas = () => {
 
     // part 3.2 add the other planets to the solar system
 
-    const mercury = new Planet("Mercury", 1, 15, 0.007, 0.01);
-    const venus = new Planet("Venus", 1.8, 23, 0.005, 0.02);
-    const mars = new Planet("Mars", 2.5, 45, 0.002, 0.04);
-    const jupiter = new Planet("Jupiter", 6, 80, 0.0005, 0.01);
-    const saturn = new Planet("Saturn", 4.5, 100, 0.0003, 0.025);
-    const uranus = new Planet("Uranus", 3.5, 120, 0.0002, 0.015);
-    const neptune = new Planet("Neptune", 3, 140, 0.0001, 0.02);
+    const mercury = new Planet("mercury", 1, 15, 0.007, 0.01);
+    const venus = new Planet("venus", 1.8, 23, 0.005, 0.02);
+    const mars = new Planet("mars", 2.5, 45, 0.002, 0.04);
+    const jupiter = new Planet("jupiter", 6, 80, 0.0005, 0.01);
+    const saturn = new Planet("saturn", 4.5, 100, 0.0003, 0.025);
+    const uranus = new Planet("uranus", 3.5, 120, 0.0002, 0.015);
+    const neptune = new Planet("neptune", 3, 140, 0.0001, 0.02);
 
     const planetArr = [
       mercury,
