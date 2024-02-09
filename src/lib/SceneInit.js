@@ -1,14 +1,10 @@
 import * as THREE from "three";
-import Stats from "three/examples/jsm/libs/stats.module";
+// import Stats from "three/examples/jsm/libs/stats.module";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 // import gsap from "gsap";
 
 export default class SceneInit {
-  constructor(
-    canvasId,
-    camera = undefined
-    // earthPosition = new THREE.Vector3(0, 0, 0)
-  ) {
+  constructor(canvasId, camera = undefined) {
     // NOTE: Core components to initialize Three.js app.
     this.scene = undefined;
     this.camera = camera;
@@ -30,23 +26,8 @@ export default class SceneInit {
     this.directionalLight = undefined;
   }
 
-  initialize(zPos = 136, bgImage, earthPosition = new THREE.Vector3(0, 0, 0)) {
+  initialize(bgImage) {
     this.scene = new THREE.Scene();
-    if (!this.camera) {
-      this.camera = new THREE.PerspectiveCamera(
-        this.fov,
-        window.innerWidth / window.innerHeight,
-        1,
-        1000
-      );
-
-      // this.camera.position.x = 0;
-      this.camera.position.y = 180;
-      this.camera.position.z = zPos;
-      // this.camera.lookAt(0, 0, 0);
-    } else {
-      this.camera.position.set(0, 0, 5);
-    }
 
     // NOTE: Specify a canvas which is already created in the HTML.
     const canvas = document.getElementById(this.canvasId);
@@ -62,8 +43,8 @@ export default class SceneInit {
     this.clock = new THREE.Clock();
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.maxDistance = 480;
-    this.stats = Stats();
-    document.body.appendChild(this.stats.dom);
+    // this.stats = Stats();
+    // document.body.appendChild(this.stats.dom);
 
     // ambient light which is for the whole scene
     this.ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
@@ -111,7 +92,7 @@ export default class SceneInit {
     window.requestAnimationFrame(this.animate.bind(this));
 
     this.render();
-    this.stats.update();
+    // this.stats.update();
     // this.camera.lookAt(0, 10, 0);
     // this.controls.update();
   }

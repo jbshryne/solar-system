@@ -67,11 +67,20 @@ class Planet {
 
 const Canvas = () => {
   useEffect(() => {
-    const stars = [];
-    const earthDistance = 36;
-    let earthPosition = new THREE.Vector3(earthDistance, 0, 0);
-    const test = new SceneInit("3d-canvas", null, earthPosition);
-    test.initialize(160, "space", earthPosition);
+    // const stars = [];
+    const mainCamera = new THREE.PerspectiveCamera(
+      45,
+      window.innerWidth / window.innerHeight,
+      1,
+      1000
+    );
+
+    // this.camera.position.x = 0;
+    mainCamera.position.y = 160;
+    mainCamera.position.z = 160;
+
+    const test = new SceneInit("3d-canvas", mainCamera);
+    test.initialize("space");
     test.animate();
 
     // const axesHelper = new THREE.AxesHelper(16);
@@ -101,12 +110,36 @@ const Canvas = () => {
     test.scene.add(sunLight);
 
     // part 3.1 - add the earth and moon to the solar system
+    const earthDistance = 36;
     const earth = new Planet("earth", 2, earthDistance, 0.003, 0.08);
     const earthOrbit = earth.orbit;
-    // const earthMesh = earth.mesh;
-    // earthOrbit.add(earthMesh);
-    // test.scene.add(earthOrbit);
-    // earthOrbit.add(test.camera);
+
+    let planetCamera = false;
+
+    window.addEventListener("mousedown", () => {
+      if (!planetCamera) {
+        const earthPosition = earth.mesh.getWorldPosition(new THREE.Vector3());
+        console.log(earthPosition);
+
+        gsap.to(test.camera.position, {
+          duration: 3,
+          x: earthPosition.x + 10,
+          y: earthPosition.y,
+          z: earthPosition.z + 10,
+          onUpdate: () => {
+            test.camera.lookAt(earthPosition);
+          },
+          onComplete: () => {
+            earthOrbit.add(test.camera);
+            test.camera.lookAt(earthPosition);
+            planetCamera = true;
+          },
+        });
+      } else {
+        earthOrbit.remove(test.camera);
+        planetCamera = false;
+      }
+    });
 
     const moonOrbit = new THREE.Group();
     const moonGeometry = new THREE.SphereGeometry(1);
@@ -131,7 +164,7 @@ const Canvas = () => {
     const uranus = new Planet("uranus", 3.5, 120, 0.0002, 0.015);
     const neptune = new Planet("neptune", 3, 140, 0.0001, 0.02);
 
-    const planetArr = [
+    const planets = [
       mercury,
       venus,
       earth,
@@ -142,7 +175,7 @@ const Canvas = () => {
       neptune,
     ];
 
-    planetArr.forEach((planet) => {
+    planets.forEach((planet) => {
       planet.init(test.scene);
     });
 
@@ -172,15 +205,15 @@ const Canvas = () => {
     //   saturnRingsGeometry.attributes.uv.setXY(i, v3.length() < 4 ? 0 : 1, 1);
     // }
 
-    const saturnRingTexture = new THREE.TextureLoader().load(
-      "./assets/saturn_ring.png"
-      // (texture) => {
-      //   // texture.wrapS = THREE.RepeatWrapping;
-      //   // texture.wrapT = THREE.RepeatWrapping;
-      //   // texture.repeat.set(4, 2); // Adjust the repeat values as needed
-      //   texture.rotation = Math.PI / 2;
-      // }
-    );
+    // const saturnRingTexture = new THREE.TextureLoader().load(
+    //   "./assets/saturn_ring.png"
+    //   // (texture) => {
+    //   //   // texture.wrapS = THREE.RepeatWrapping;
+    //   //   // texture.wrapT = THREE.RepeatWrapping;
+    //   //   // texture.repeat.set(4, 2); // Adjust the repeat values as needed
+    //   //   texture.rotation = Math.PI / 2;
+    //   // }
+    // );
 
     const saturnRingsMaterial = new THREE.MeshStandardMaterial({
       // map: saturnRingTexture,
@@ -196,6 +229,36 @@ const Canvas = () => {
     saturn.mesh.add(saturnRingsMesh);
 
     // part 3.3 - animate earth rotation and moon rotation
+
+    // let planetCamera = false;
+
+    // const handlePlanetCamera = (planet) => {
+    //   if (planetCamera) {
+    //     const planetPosition = planet.mesh.getWorldPosition(
+    //       new THREE.Vector3()
+    //     );
+    //     gsap.to(test.camera.position, {
+    //       duration: 3,
+    //       x: planetPosition.x + 10,
+    //       y: planetPosition.y,
+    //       z: planetPosition.z + 10,
+    //       onUpdate: () => {
+    //         test.camera.lookAt(planetPosition);
+    //       },
+    //       onComplete: () => {
+    //         earthOrbit.add(test.camera);
+    //         planetCamera = true;
+    //       },
+    //     });
+    //   } else {
+    //     earthOrbit.remove(test.camera);
+    //     planetCamera = false;
+    //   }
+    // };
+
+    // document.querySelector("button").addEventListener("click", () => {
+    //   handlePlanetCamera(earth);
+    // });
 
     // window.addEventListener("mousedown", () => {
     //   earthOrbit.add(test.camera);
@@ -214,9 +277,15 @@ const Canvas = () => {
     const animate = () => {
       moonOrbit.rotation.y -= 0.02;
 
-      planetArr.forEach((planet) => {
+      planets.forEach((planet) => {
         planet.update();
       });
+
+      // const earthPosition = earth.mesh.getWorldPosition(new THREE.Vector3());
+      // test.camera.position.x = earthPosition.x + 10;
+      // test.camera.position.y = earthPosition.y;
+      // test.camera.position.z = earthPosition.z + 10;
+      // test.camera.lookAt(earthPosition);
 
       plutoAngle -= 0.0001; // Increment the angle
       plutoOrbit.rotation.y = plutoAngle; // Set the rotation based on the angle
@@ -235,7 +304,9 @@ const Canvas = () => {
 
   return (
     <div id="canvas-page">
-      <canvas id="3d-canvas"></canvas>
+      <canvas id="3d-canvas">
+        {/* <button value="earthButton"></button> */}
+      </canvas>
     </div>
   );
 };
