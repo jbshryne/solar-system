@@ -16,7 +16,7 @@ function PlanetsFiber() {
     const textureMap = useLoader(TextureLoader, "./assets/sun.jpeg");
     return (
       <mesh>
-        <sphereGeometry args={[12]} />
+        <sphereGeometry args={[12, 64, 64]} />
         <meshBasicMaterial color="orange" map={textureMap} />
       </mesh>
     );
@@ -45,7 +45,7 @@ function PlanetsFiber() {
     return (
       <mesh rotation-x={Math.PI / 2}>
         <ringGeometry args={[6, 8, 30]} />
-        <meshBasicMaterial color={0xb9a68c} side={THREE.DoubleSide} />
+        <meshStandardMaterial color={0xb9a68c} side={THREE.DoubleSide} />
       </mesh>
     );
   };
@@ -121,7 +121,7 @@ function PlanetsFiber() {
 
   return (
     <Canvas
-      camera={{ position: [0, 100, 100] }}
+      camera={{ position: [0, 100, 100], fov: 30 }}
       scene={{ background: "black" }}
     >
       {/* <CanvasSize /> */}
