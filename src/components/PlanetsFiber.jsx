@@ -19,35 +19,52 @@ function PlanetsFiber() {
   console.log("PlanetsFiber loads!");
   const Sun = () => {
     const texture = useLoader(TextureLoader, "./assets/sun.jpeg");
-    // const sunLabel = useRef();
+    const sunLabel = useRef();
+    const [highlighted, setHighlighted] = useState(false);
 
-    // useFrame(({ camera }) => {
-    //   sunLabel.current.lookAt(camera.position);
-    // });
+    const handlePointerOver = () => {
+      setHighlighted(true);
+    };
+
+    const handlePointerOut = () => {
+      setHighlighted(false);
+    };
+
+    useFrame(({ camera }) => {
+      if (highlighted) sunLabel.current.lookAt(camera.position);
+    });
 
     return (
       <>
-        <mesh>
-          <sphereGeometry args={[12, 64, 64]} />
-          <meshBasicMaterial color="orange" map={texture} />
-        </mesh>
-        {/* <Text
-          ref={sunLabel}
-          scale={[0.5, 0.5, 0.5]}
-          position={[0, 15, 0]}
-          color="orange"
-          fontSize={10}
-          maxWidth={100}
-          lineHeight={1}
-          letterSpacing={0.02}
-          textAlign="center"
-          anchorX="center"
-          anchorY="middle"
-          outlineWidth={0.1}
-          outlineColor="white"
+        <mesh
+          onPointerOver={() => handlePointerOver()}
+          onPointerOut={() => handlePointerOut()}
         >
-          Sun
-        </Text> */}
+          <sphereGeometry args={[12, 64, 64]} />
+          <meshBasicMaterial
+            color={highlighted ? "white" : "goldenrod"}
+            map={texture}
+          />
+        </mesh>
+        {highlighted && (
+          <Text
+            ref={sunLabel}
+            scale={[0.5, 0.5, 0.5]}
+            position={[0, 15, 0]}
+            color="white"
+            fontSize={10}
+            maxWidth={100}
+            lineHeight={1}
+            letterSpacing={0.02}
+            textAlign="center"
+            anchorX="center"
+            anchorY="middle"
+            outlineWidth={0.1}
+            outlineColor="white"
+          >
+            Sun
+          </Text>
+        )}
         {/* <mesh position={[0, 15, 0]}>
           <textGeometry args={["Sun", { font, size: 5, height: 0.5 }]} />
           <meshBasicMaterial color="orange" />
@@ -59,47 +76,84 @@ function PlanetsFiber() {
   const Moon = ({ distance }) => {
     const textureMap = useLoader(TextureLoader, "./assets/moon.jpeg");
     const moonOrbit = useRef();
+    const moonLabel = useRef();
 
-    useFrame(() => {
+    const [highlighted, setHighlighted] = useState(false);
+
+    const handlePointerOver = () => {
+      setHighlighted(true);
+    };
+
+    const handlePointerOut = () => {
+      setHighlighted(false);
+    };
+
+    useFrame(({ camera }) => {
       moonOrbit.current.rotation.y -= 0.02;
+      if (highlighted) moonLabel.current.lookAt(camera.position);
     });
 
     return (
       <group ref={moonOrbit} position-x={distance}>
-        <mesh position-x={4} rotation-y={Math.PI}>
+        <mesh
+          position-x={4}
+          rotation-y={Math.PI}
+          onPointerOver={handlePointerOver}
+          onPointerOut={handlePointerOut}
+        >
           <sphereGeometry args={[1, 32, 32]} />
-          <meshStandardMaterial map={textureMap} />
+          {highlighted ? (
+            <meshBasicMaterial map={textureMap} />
+          ) : (
+            <meshStandardMaterial map={textureMap} />
+          )}
         </mesh>
+        {highlighted && (
+          <Text
+            ref={moonLabel}
+            scale={[0.5, 0.5, 0.5]}
+            position={[4, 3, 0]}
+            color="white"
+            fontSize={2}
+            maxWidth={100}
+            lineHeight={1}
+            letterSpacing={0.02}
+            textAlign="center"
+            anchorX="center"
+            anchorY="middle"
+            outlineWidth={0.1}
+            outlineColor="white"
+          >
+            Moon
+          </Text>
+        )}
       </group>
     );
   };
 
   const Rings = () => {
-    const textureMap = useLoader(
-      TextureLoader,
-      "./assets/saturn-rings-top.png"
-    );
+    const texture = useLoader(TextureLoader, "./assets/saturn-rings-top.png");
 
-    const geometry = new THREE.RingGeometry(6, 8, 75);
-
-    const pos = geometry.attributes.position;
-    const uv = geometry.attributes.uv;
-    const v3 = new THREE.Vector3();
-
+    const geometry = new THREE.RingGeometry(6, 8, 64);
+    var pos = geometry.attributes.position;
+    var v3 = new THREE.Vector3();
     for (let i = 0; i < pos.count; i++) {
       v3.fromBufferAttribute(pos, i);
-      uv.setXY(i, v3.length() < 4 ? 0 : 1, 1);
+      geometry.attributes.uv.setXY(i, v3.length() < 7 ? 0 : 1, 1);
     }
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+      color: "#D2B48C",
+      side: THREE.DoubleSide,
+      transparent: true,
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+
     return (
-      <mesh rotation-x={Math.PI / 2}>
-        <bufferGeometry attach="geometry" {...geometry} />
-        <meshStandardMaterial
-          color={0xb9a68c}
-          side={THREE.DoubleSide}
-          map={textureMap}
-          // transparent={true}
-        />
-      </mesh>
+      <>
+        <primitive object={mesh} rotation-x={Math.PI / 2} />
+      </>
     );
   };
 
@@ -110,8 +164,9 @@ function PlanetsFiber() {
     orbitSpeed,
     rotationSpeed,
     feature,
+    color = "white",
   }) => {
-    const camera = useThree((state) => state.camera);
+    // const camera = useThree((state) => state.camera);
     const planetOrbit = useRef();
     const planetBody = useRef();
     const planetLabel = useRef();
@@ -164,7 +219,7 @@ function PlanetsFiber() {
           {highlighted ? (
             <meshBasicMaterial map={textureMap} />
           ) : (
-            <meshStandardMaterial map={textureMap} />
+            <meshStandardMaterial map={textureMap} color={color} />
           )}
           {feature === "rings" && <Rings />}
         </mesh>
@@ -277,6 +332,7 @@ function PlanetsFiber() {
         <Sun />
         <Planet
           name="Mercury"
+          color="C0C0C0"
           radius={1}
           distance={18}
           orbitSpeed={0.007}
@@ -284,6 +340,7 @@ function PlanetsFiber() {
         />
         <Planet
           name="Venus"
+          color="FFD700"
           radius={1.8}
           distance={27}
           orbitSpeed={0.005}
@@ -291,6 +348,7 @@ function PlanetsFiber() {
         />
         <Planet
           name="Earth"
+          color="0000FF"
           radius={2}
           distance={36}
           orbitSpeed={0.003}
@@ -299,6 +357,7 @@ function PlanetsFiber() {
         />
         <Planet
           name="Mars"
+          color="FF6347"
           radius={1.5}
           distance={45}
           orbitSpeed={0.002}
@@ -306,6 +365,7 @@ function PlanetsFiber() {
         />
         <Planet
           name="Jupiter"
+          color="FFD700"
           radius={6}
           distance={64}
           orbitSpeed={0.0005}
@@ -313,6 +373,7 @@ function PlanetsFiber() {
         />
         <Planet
           name="Saturn"
+          color="tan"
           radius={4.5}
           distance={87}
           orbitSpeed={0.0003}
@@ -321,6 +382,7 @@ function PlanetsFiber() {
         />
         <Planet
           name="Uranus"
+          color="lightblue"
           radius={3.5}
           distance={110}
           orbitSpeed={0.0002}
@@ -328,6 +390,7 @@ function PlanetsFiber() {
         />
         <Planet
           name="Neptune"
+          color="deepskyblue"
           radius={3}
           distance={130}
           orbitSpeed={0.0001}
