@@ -4,8 +4,8 @@ import {
   Canvas,
   useLoader,
   useFrame,
-  useThree,
   extend,
+  useThree,
 } from "@react-three/fiber";
 import { TextureLoader } from "three/src/loaders/TextureLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -17,12 +17,20 @@ extend({ TextGeometry });
 
 function PlanetsFiber() {
   console.log("PlanetsFiber loads!");
+
+  // const [cameraControls, setCameraControls] = useState({
+  //   isFocused: false,
+  //   cameraPosition: [0, 100, 100],
+  //   lookAtPosition: [0, 0, 0],
+  // });
+
   const Sun = () => {
     const texture = useLoader(TextureLoader, "./assets/sun.jpeg");
     const sunLabel = useRef();
     const [highlighted, setHighlighted] = useState(false);
 
-    const handlePointerOver = () => {
+    const handlePointerOver = (e) => {
+      e.stopPropagation();
       setHighlighted(true);
     };
 
@@ -37,7 +45,10 @@ function PlanetsFiber() {
     return (
       <>
         <mesh
-          onPointerOver={() => handlePointerOver()}
+          // onClick={() => {
+          //   setFocusRef(sunLabel.current);
+          // }}
+          onPointerOver={(e) => handlePointerOver(e)}
           onPointerOut={() => handlePointerOut()}
         >
           <sphereGeometry args={[12, 64, 64]} />
@@ -80,7 +91,8 @@ function PlanetsFiber() {
 
     const [highlighted, setHighlighted] = useState(false);
 
-    const handlePointerOver = () => {
+    const handlePointerOver = (e) => {
+      e.stopPropagation();
       setHighlighted(true);
     };
 
@@ -134,12 +146,12 @@ function PlanetsFiber() {
   const Rings = () => {
     const texture = useLoader(TextureLoader, "./assets/saturn-rings-top.png");
 
-    const geometry = new THREE.RingGeometry(6, 8, 64);
+    const geometry = new THREE.RingGeometry(5, 8, 64);
     var pos = geometry.attributes.position;
     var v3 = new THREE.Vector3();
     for (let i = 0; i < pos.count; i++) {
       v3.fromBufferAttribute(pos, i);
-      geometry.attributes.uv.setXY(i, v3.length() < 7 ? 0 : 1, 1);
+      geometry.attributes.uv.setXY(i, v3.length() < 6.5 ? 0 : 1, 1);
     }
 
     const material = new THREE.MeshBasicMaterial({
@@ -177,15 +189,25 @@ function PlanetsFiber() {
 
     const randomAngleRef = useRef(Math.random() * Math.PI * 2);
     const [highlighted, setHighlighted] = useState(false);
+    const [selected, setSelected] = useState(false);
 
     useFrame(({ camera }) => {
       // start planet at random point in orbit
+      // if (!cameraControls.isFocused)
       planetOrbit.current.rotation.y -= orbitSpeed;
       planetBody.current.rotation.y -= rotationSpeed;
       if (highlighted) planetLabel.current.lookAt(camera.position);
+      if (selected) {
+        planetOrbit.current.add(camera);
+        camera.position.set(distance + 20, radius + 10, 50);
+        camera.lookAt(planetBody.current.position);
+      }
+      // camera.position.lerp(new THREE.Vector3(...targetCameraPosition), 0.05);
+      // camera.lookAt(...targetCameraPosition);
     });
 
-    const handlePointerOver = () => {
+    const handlePointerOver = (e) => {
+      e.stopPropagation();
       setHighlighted(true);
       console.log(name, "highlighted");
     };
@@ -195,25 +217,20 @@ function PlanetsFiber() {
       console.log(name, "unhighlighted");
     };
 
+    const handlePointerClick = () => {
+      // handlePlanetClick([distance, radius + 10, 50]); // Set the target camera position on click
+      setSelected(true);
+    };
+
     return (
       <group ref={planetOrbit} rotation-y={randomAngleRef.current}>
         <mesh
           ref={planetBody}
-          onPointerOver={() => handlePointerOver()}
+          onClick={handlePointerClick}
+          onPointerOver={(e) => handlePointerOver(e)}
           onPointerOut={() => handlePointerOut()}
           // onPointerDown={console.log}
           position-x={distance}
-          // onClick={() => {
-          //   const planetPosition = planetBody.current.getWorldPosition(
-          //     new THREE.Vector3()
-          //   );
-
-          //   camera.position.x = planetPosition.x + 10;
-          //   camera.position.y = planetPosition.y + 10;
-          //   camera.position.z = planetPosition.z + 10;
-          //   planetOrbit.current.add(camera);
-          //   camera.lookAt(planetPosition);
-          // }}
         >
           <sphereGeometry args={[radius, 32, 32]} />
           {highlighted ? (
@@ -247,12 +264,12 @@ function PlanetsFiber() {
     );
   };
 
-  const Pluto = () => {
-    const plutoOrbit = useRef();
-    const plutoBody = useRef();
-    const plutoLabel = useRef();
-    const plutoModel = useLoader(GLTFLoader, "./assets/Pluto_1_2374.glb");
+  const plutoOrbit = useRef();
+  const plutoBody = useRef();
+  const plutoLabel = useRef();
+  const plutoModel = useLoader(GLTFLoader, "./assets/Pluto_1_2374.glb");
 
+  const Pluto = () => {
     const [highlighted, setHighlighted] = useState(false);
 
     useFrame(({ camera }) => {
@@ -296,27 +313,6 @@ function PlanetsFiber() {
     );
   };
 
-  // const Raycaster = () => {
-  //   const { camera, mouse, raycaster, scene } = useThree();
-  //   // raycaster.layers.set(1);
-  //   // console.log(raycaster.layers);
-  //   // object.layers.enable(1);
-
-  //   const onMouseClick = (e) => {
-  //     const x = (e.clientX / window.innerWidth) * 2 - 1;
-  //     const y = -(e.clientY / window.innerHeight) * 2 + 1;
-  //     mouse.x = x;
-  //     mouse.y = y;
-  //     raycaster.setFromCamera(mouse, camera);
-  //     const intersects = raycaster.intersectObjects(scene.children, true);
-  //     intersects.forEach((intersect) => {
-  //       console.log(intersect.object.geometry.type);
-  //     });
-  //   };
-  //   window.addEventListener("click", onMouseClick);
-  //   return null;
-  // };
-
   return (
     <>
       <Canvas
@@ -324,8 +320,7 @@ function PlanetsFiber() {
         scene={{ background: "black" }}
         // onClick={(e) => console.log("click", e.object.name)}
       >
-        {/* <CanvasSize /> */}
-        {/* <Raycaster /> */}
+        {}
         <Stars />
         <ambientLight args={[0xffffff, 0.2]} />
         <pointLight args={[0xffffff, 4, 1000, 0.1]} position={[0, 0, 0]} />
@@ -397,7 +392,12 @@ function PlanetsFiber() {
           rotationSpeed={0.02}
         />
         <Pluto />
-        <OrbitControls zoomSpeed={0.2} />
+        <OrbitControls
+          zoomSpeed={0.2}
+          // target={
+          //   cameraControls.isFocused ? cameraControls.lookAtPosition : [0, 0, 0]
+          // }
+        />
       </Canvas>
     </>
   );
