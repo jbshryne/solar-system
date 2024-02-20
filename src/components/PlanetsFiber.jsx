@@ -207,6 +207,7 @@ function PlanetsFiber() {
     });
 
     const handlePointerOver = (e) => {
+      console.log(e);
       e.stopPropagation();
       setHighlighted(true);
       console.log(name, "highlighted");
@@ -327,7 +328,7 @@ function PlanetsFiber() {
         <Sun />
         <Planet
           name="Mercury"
-          color="C0C0C0"
+          color="#c0c0c0"
           radius={1}
           distance={18}
           orbitSpeed={0.007}
@@ -335,7 +336,7 @@ function PlanetsFiber() {
         />
         <Planet
           name="Venus"
-          color="FFD700"
+          color="#debc95"
           radius={1.8}
           distance={27}
           orbitSpeed={0.005}
@@ -343,7 +344,7 @@ function PlanetsFiber() {
         />
         <Planet
           name="Earth"
-          color="0000FF"
+          // color="#0000ff"
           radius={2}
           distance={36}
           orbitSpeed={0.003}
@@ -352,7 +353,7 @@ function PlanetsFiber() {
         />
         <Planet
           name="Mars"
-          color="FF6347"
+          color="#e6c7be"
           radius={1.5}
           distance={45}
           orbitSpeed={0.002}
@@ -360,7 +361,7 @@ function PlanetsFiber() {
         />
         <Planet
           name="Jupiter"
-          color="FFD700"
+          color="#e0c7ab"
           radius={6}
           distance={64}
           orbitSpeed={0.0005}
