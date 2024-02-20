@@ -16,7 +16,7 @@ import { Stars, OrbitControls, Text } from "@react-three/drei";
 extend({ TextGeometry });
 
 function PlanetsFiber() {
-  console.log("PlanetsFiber loads!");
+  // console.log("PlanetsFiber loads!");
 
   // const [cameraControls, setCameraControls] = useState({
   //   isFocused: false,
@@ -207,7 +207,7 @@ function PlanetsFiber() {
     });
 
     const handlePointerOver = (e) => {
-      console.log(e);
+      // console.log(e);
       e.stopPropagation();
       setHighlighted(true);
       console.log(name, "highlighted");
